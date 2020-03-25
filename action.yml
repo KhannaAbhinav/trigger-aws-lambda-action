@@ -1,32 +1,75 @@
-name: File Commits Leaderboard
+name: Trigger AWS Lamba
 author: Abhinav Khanna
-description: Prints Number of commits for files in the repo.
+description: This action invokes AWS Lambda from github. you can use a scheduled job or on git teiggers. 
 inputs: 
-  Path:
-   description: Specifies a path to one or more locations. Wildcards are accepted. The default location is the current directory (.).
+  endpoint:
+   description: The endpoint URI to send requests to. The default endpoint is built from the configured region. The endpoint should be a string like 'https://{service}.{region}.amazonaws.com'.
    required: False
-   default: "."
-  Filter: 
-    description: Specifies a filter to qualify the Path parameter.
+   default: Null
+  accessKeyId: 
+    description: your AWS access key ID.
     required: False
-    default: ".*"
-  Recurse: 
-    description: Gets the items in the specified locations and in all child items of the locations.
+    default: Null
+  secretAccessKey: 
+    description: your AWS secret access key.
     required: False
-    default: "True" 
-  Top:
-    description: Returns Top N values. If both Top and Bottom values are provided, Top is preferred.
+    default: Null
+  sessionToken:
+    description: the optional AWS session token to sign requests with.
     required: False
-    default: "0"
-  Bottom:
-    description: Returns Bottom N values. If both Top and Bottom values are provided, Top is preferred.
+    default: Null
+  region:
+    description:  the region to send service requests to. See AWS.Lambda.region for more information.
     required: False
-    default: "0"
-  OutputToConsole:
-    description: prints values on console
+    default: Null
+  maxRetries:
+    description: the maximum amount of retries to attempt with a request. See AWS.Lambda.maxRetries for more information.
     required: False
-    default: "True"
+    default: Null
+  maxRedirects:
+    description:  the maximum amount of redirects to follow with a request. See AWS.Lambda.maxRedirects for more information.
+    required: False
+    default: Null
+  sslEnabled:
+    description: whether to enable SSL for requests.
+    required: False
+    default: Null
+  functionName:
+    description: The name of the Lambda function, version, or alias.
+    required: True
+  invocationType:
+    description: | 
+      RequestResponse (default) - Invoke the function synchronously. Keep the connection open until the function returns a response or times out. The API response includes the function response and additional data.
+      Event - Invoke the function asynchronously. Send events that fail multiple times to the function's dead-letter queue (if it's configured). The API response only includes a status code.
+      DryRun - Validate parameter values and verify that the user or role has permission to invoke the function.
+      Possible values include:
+        "Event"
+        "RequestResponse"
+        "DryRun"
+    required: False
+    default: "RequestResponse"
+  logType:
+    description: | 
+      Set to Tail to include the execution log in the response.
+      Possible values include:
+        "None"
+        "Tail"
+    required: False
+    default: "None"
+  clientContext:
+    description: Up to 3583 bytes of base64-encoded data about the invoking client to pass to the function in the context object.
+    required: False
+    default: Null
+  payload:
+    description: The JSON that you want to provide to your Lambda function as input
+    required: False
+    default: Null
+  qualifier:
+    description: Specify a version or alias to invoke a published version of the function.
+    required: False
+    default: Null
 
+    
 runs:
   using: 'node12'
   main:  'dist/index.js'
