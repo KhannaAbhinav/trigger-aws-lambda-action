@@ -1,0 +1,36 @@
+name: File Commits Leaderboard
+author: Abhinav Khanna
+description: Prints Number of commits for files in the repo.
+inputs: 
+  Path:
+   description: Specifies a path to one or more locations. Wildcards are accepted. The default location is the current directory (.).
+   required: False
+   default: "."
+  Filter: 
+    description: Specifies a filter to qualify the Path parameter.
+    required: False
+    default: ".*"
+  Recurse: 
+    description: Gets the items in the specified locations and in all child items of the locations.
+    required: False
+    default: "True" 
+  Top:
+    description: Returns Top N values. If both Top and Bottom values are provided, Top is preferred.
+    required: False
+    default: "0"
+  Bottom:
+    description: Returns Bottom N values. If both Top and Bottom values are provided, Top is preferred.
+    required: False
+    default: "0"
+  OutputToConsole:
+    description: prints values on console
+    required: False
+    default: "True"
+
+runs:
+  using: 'node12'
+  main:  'dist/index.js'
+
+branding:
+  icon: 'grid'  
+  color: 'blue'
