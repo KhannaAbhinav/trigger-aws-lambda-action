@@ -1,6 +1,9 @@
 import * as core from '@actions/core'
 import * as aws from 'aws-sdk'
-import LAMBDA from 'aws-sdk/cl'
+import lambda, { ClientConfiguration, InvocationRequest, InvokeAsyncResponse, InvokeAsyncRequest, InvocationResponse } from 'aws-sdk/clients/lambda'
+import { ParamValidation, RetryDelayOptions, HTTPOptions, Logger} from 'aws-sdk/lib/config'
+import * as httpAgent from 'http'
+import * as httpsAgent from 'https'
 import * as uuid from 'node-uuid'
 
 enum InvocationType {
@@ -25,57 +28,69 @@ async function main(): Promise<void> {
     const qualifier = core.getInput('qualifier');
     const outfile = core.getInput('outfile');
 
-    const params = core.getInput('params');
+    if (!(logType in LogType)) {
+      throw Error("Invalid Log Type. Valid Values are None and Tail")
+    }
+
+    if (!(invocationType in InvocationType)) {
+      throw Error("Invalid Invocation Type. Valid Values are Event, RequestResponse and DryRun")
+    }
+
+    const params = JSON.parse(core.getInput('params'));
     const endpoint = core.getInput('endpoint');
     const accessKeyId = core.getInput('accessKeyId');
     const secretAccessKey = core.getInput('secretAccessKey');
     const sessionToken = core.getInput('sessionToken');
-    const credentials = core.getInput('credentials');
-    const credentialProvider = core.getInput('credentialProvider');
     const region = core.getInput('region');
     const maxRetries = parseInt(core.getInput('maxRetries'));
     const maxRedirects = parseInt(core.getInput('maxRedirects'));
-    const sslEnabled = new Boolean(core.getInput('sslEnabled'));
-    const paramValidation = {
-      min: core.getInput('paramValidation_min'),
-      max: core.getInput('paramValidation_max'),
-      pattern: core.getInput('paramValidation_pattern'),
-      enum: core.getInput('paramValidation_enum')
+    const sslEnabled = Boolean(core.getInput('sslEnabled'));
+    const paramValidation: ParamValidation = {
+      min: Boolean(core.getInput('paramValidation_min')),
+      max: Boolean(core.getInput('paramValidation_max')),
+      pattern: Boolean(core.getInput('paramValidation_pattern')),
+      enum: Boolean(core.getInput('paramValidation_enum'))
     }
-    const computeChecksums = new Boolean(core.getInput('computeChecksums'));
-    const convertResponseTypes = new Boolean(core.getInput('convertResponseTypes'));
-    const correctClockSkew = new Boolean(core.getInput('correctClockSkew'));
-    const s3ForcePathStyle = new Boolean(core.getInput('s3ForcePathStyle'));
-    const s3BucketEndpoint = new Boolean(core.getInput('s3BucketEndpoint'));
-    const s3DisableBodySigning = new Boolean(core.getInput('s3DisableBodySigning'));
+    const computeChecksums = Boolean(core.getInput('computeChecksums'));
+    const convertResponseTypes = Boolean(core.getInput('convertResponseTypes'));
+    const correctClockSkew = Boolean(core.getInput('correctClockSkew'));
+    const s3ForcePathStyle = Boolean(core.getInput('s3ForcePathStyle'));
+    const s3BucketEndpoint = Boolean(core.getInput('s3BucketEndpoint'));
+    const s3DisableBodySigning = Boolean(core.getInput('s3DisableBodySigning'));
     const s3UsEast1RegionalEndpoint = core.getInput('s3UsEast1RegionalEndpoint');
-    const s3UseArnRegion = new Boolean(core.getInput('s3UseArnRegion'));
-    const retryDelayOptions = {
-      base: core.getInput('base'),
-      customBackoff: core.getInput('customBackoff')
+    const s3UseArnRegion = Boolean(core.getInput('s3UseArnRegion'));
 
+    const retryDelayOptions: RetryDelayOptions = {
+      base: parseInt(core.getInput('base'))
     }
-    const httpOptions = {
+    const agent = core.getInput('httpOptions_agent').toLowerCase() == "http.agent" ? (new httpAgent.Agent()): (new httpsAgent.Agent())
+    
+    
+    const httpOptions: HTTPOptions = {
       proxy: core.getInput('httpOptions_proxy'),
-      agent: core.getInput('httpOptions_agent'),
-      connectTimeout: core.getInput('httpOptions_connectTimeout'),
-      timeout: core.getInput('httpOptions_timeout'),
-      xhrAsync: core.getInput('httpOptions_xhrAsync'),
-      xhrWithCredentials: core.getInput('httpOptions_xhrWithCredentials')
+      agent,
+      connectTimeout: parseInt(core.getInput('httpOptions_connectTimeout')),
+      timeout: parseInt(core.getInput('httpOptions_timeout')),
+      xhrAsync: Boolean(core.getInput('httpOptions_xhrAsync')),
+      xhrWithCredentials: Boolean(core.getInput('httpOptions_xhrWithCredentials'))
     }
     const apiVersion = core.getInput('apiVersion');
     const apiVersions = core.getInput('apiVersions');
-    const logger = core.getInput('logger');
+    const logger: Logger = {
+      write: console.log,
+      log: console.log
+    }
     const systemClockOffset = parseInt(core.getInput('systemClockOffset'));
     const signatureVersion = core.getInput('signatureVersion');
-    const signatureCache = new Boolean(core.getInput('signatureCache'));
-    const dynamoDbCrc32 = new Boolean(core.getInput('dynamoDbCrc32'));
-    const useAccelerateEndpoint = new Boolean(core.getInput('useAccelerateEndpoint'));
-    const clientSideMonitoring = new Boolean(core.getInput('clientSideMonitoring'));
-    const endpointDiscoveryEnabled = new Boolean(core.getInput('endpointDiscoveryEnabled'));
+    const signatureCache = Boolean(core.getInput('signatureCache'));
+    const dynamoDbCrc32 = Boolean(core.getInput('dynamoDbCrc32'));
+    const useAccelerateEndpoint = Boolean(core.getInput('useAccelerateEndpoint'));
+    const clientSideMonitoring = Boolean(core.getInput('clientSideMonitoring'));
+    const endpointDiscoveryEnabled = Boolean(core.getInput('endpointDiscoveryEnabled'));
     const endpointCacheSize = parseInt(core.getInput('endpointCacheSize'));
-    const hostPrefixEnabled = new Boolean(core.getInput('hostPrefixEnabled'));
-    const stsRegionalEndpoints = core.getInput('stsRegionalEndpoints');
+    const hostPrefixEnabled = Boolean(core.getInput('hostPrefixEnabled'));
+    
+    const stsRegionalEndpoints: "legacy" | "regional" = core.getInput('stsRegionalEndpoints') == "regional" ? "regional"  : "legacy"
 
     console.debug(`functionName :  ${functionName}`)
     console.debug(`invocationType :  ${invocationType}`)
@@ -90,8 +105,7 @@ async function main(): Promise<void> {
     console.debug(`accessKeyId : ${accessKeyId}`);
     console.debug(`secretAccessKey : ${secretAccessKey}`);
     console.debug(`sessionToken : ${sessionToken}`);
-    console.debug(`credentials : ${credentials}`);
-    console.debug(`credentialProvider : ${credentialProvider}`);
+
     console.debug(`region : ${region}`);
     console.debug(`maxRetries : ${maxRetries}`);
     console.debug(`maxRedirects : ${maxRedirects}`);
@@ -121,14 +135,12 @@ async function main(): Promise<void> {
     console.debug(`hostPrefixEnabled : ${hostPrefixEnabled}`);
     console.debug(`stsRegionalEndpoints : ${stsRegionalEndpoints}`);
 
-    const serviceOptions = {
+    const serviceOptions: ClientConfiguration = {
       params,
       endpoint,
       accessKeyId,
       secretAccessKey,
       sessionToken,
-      credentials,
-      credentialProvider,
       region,
       maxRetries,
       maxRedirects,
@@ -140,34 +152,41 @@ async function main(): Promise<void> {
       s3ForcePathStyle,
       s3BucketEndpoint,
       s3DisableBodySigning,
-      s3UsEast1RegionalEndpoint,
       s3UseArnRegion,
       retryDelayOptions,
       httpOptions,
       apiVersion,
-      apiVersions,
       logger,
       systemClockOffset,
       signatureVersion,
       signatureCache,
       dynamoDbCrc32,
       useAccelerateEndpoint,
-      clientSideMonitoring,
       endpointDiscoveryEnabled,
       endpointCacheSize,
       hostPrefixEnabled,
       stsRegionalEndpoints
     }
 
-      var lambda = new aws.lambda(serviceOptions)
-      
-    if (!(logType in LogType)) {
-      throw Error("Invalid Log Type. Valid Values are None and Tail")
-    }
+    const lambdaService = new lambda(serviceOptions)
 
-    if (!(invocationType in InvocationType)) {
-      throw Error("Invalid Invocation Type. Valid Values are Event, RequestResponse and DryRun")
-    }
+    var invokeParams: InvocationRequest = {
+      ClientContext: clientContext, 
+      FunctionName: functionName, 
+      InvocationType: invocationType, 
+      LogType: logType, 
+      Payload: payload, 
+      Qualifier: qualifier
+     };
+
+    await lambdaService.invoke(invokeParams, function(err: aws.AWSError, data: InvocationResponse) {
+      if (err) console.log(err, err.stack); // an error occurred
+      else  {
+        core.setOutput('lambdaOutputStatusCode', `${data.StatusCode}`)
+        core.setOutput('lambdaOutputPayload', JSON.stringify(data.Payload))
+        console.log(data);
+      } 
+    });
 
     var lambdaOutput = "";
     core.setOutput('lambdaOutput', JSON.stringify(lambdaOutput))

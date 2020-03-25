@@ -7,6 +7,7 @@
     "@actions/core": "^1.2.3",
     "@actions/github": "^2.1.1",
     "@actions/glob": "^0.1.0",
+    "@types/node-uuid": "0.0.28",
     "@types/underscore": "^1.9.4",
     "aws-sdk": "^2.645.0",
     "node-uuid": "^1.4.8",
