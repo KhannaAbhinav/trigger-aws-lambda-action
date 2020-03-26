@@ -18,6 +18,7 @@ False
 #### Default
 Null
 
+---
 
 ### accessKeyId
 
@@ -30,9 +31,12 @@ False
 #### Default
 Null
 
+---
 
 ### secretAccessKey 
-Description your AWS secret access key.
+
+#### Description
+your AWS secret access key.
 
 #### Required
 False
@@ -40,9 +44,12 @@ False
 #### Default
 Null
 
+---
 
 ### sessionToken
-Description the optional AWS session token to sign requests with.
+
+#### Description
+the optional AWS session token to sign requests with.
 
 #### Required
 False
@@ -50,9 +57,12 @@ False
 #### Default
 Null
 
+---
 
 ### region
-Description  the region to send service requests to. See AWS.Lambda.region for more information.
+
+#### Description
+the region to send service requests to. See AWS.Lambda.region for more information.
 
 #### Required
 False
@@ -60,9 +70,12 @@ False
 #### Default
 Null
 
+---
 
 ### maxRetries
-Description the maximum amount of retries to attempt with a request. See AWS.Lambda.maxRetries for more information.
+
+#### Description
+the maximum amount of retries to attempt with a request. See AWS.Lambda.maxRetries for more information.
 
 #### Required
 False
@@ -70,9 +83,12 @@ False
 #### Default
 Null
 
+---
 
 ### maxRedirects
-Description  the maximum amount of redirects to follow with a request. See AWS.Lambda.maxRedirects for more information.
+
+#### Description
+the maximum amount of redirects to follow with a request. See AWS.Lambda.maxRedirects for more information.
 
 #### Required
 False
@@ -80,9 +96,12 @@ False
 #### Default
 Null
 
+---
 
 ### sslEnabled
-Description whether to enable SSL for requests.
+
+#### Description
+whether to enable SSL for requests.
 
 #### Required
 False
@@ -90,6 +109,7 @@ False
 #### Default
 Null
 
+---
 
 ### functionName
 
@@ -99,6 +119,7 @@ The name of the Lambda function, version, or alias.
 #### Required
 True
 
+---
 
 ### invocationType
 
@@ -121,6 +142,8 @@ False
 #### Default
 "RequestResponse"
 
+---
+
 ### logType
 
 #### Description 
@@ -136,6 +159,7 @@ False
 #### Default
 "None"
 
+---
 
 ### clientContext
 
@@ -148,6 +172,7 @@ False
 #### Default
 Null
 
+---
 
 ### payload
 
@@ -160,6 +185,7 @@ False
 #### Default
 Null
 
+---
 
 ### qualifier
 
@@ -172,6 +198,7 @@ False
 #### Default
 Null
 
+---
 
 ## Outputs
 
@@ -181,29 +208,34 @@ Null
 #### Description
 The HTTP status code is in the 200 range for a successful request. For the RequestResponse invocation type, this status code is 200. For the Event invocation type, this status code is 202. For the DryRun invocation type, the status code is 204.
 
+---
 
 ### lambdaOutputExecutedVersion
 
 #### Description
 The version of the function that executed. When you invoke a function with an alias, this indicates which version the alias resolved to.
 
+---
 
 ### lambdaOutputFunctionError
 
 #### Description
 If present, indicates that an error occurred during function execution. Details about the error are included in the response payload.
 
+---
 
 ### lambdaOutputLogResult
 
 #### Description
 The last 4 KB of the execution log, which is base64 encoded.
 
+---
 
 ### lambdaOutputPayload
 
 #### Description
 The response from the function, or an error object.
 
+---
 
 All descriptions are copied from AWS Reference Guide.
