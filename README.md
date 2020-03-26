@@ -1,8 +1,8 @@
-# Trigger AWS Lamba
+# Trigger AWS Lambda
 
 ## Description
 
-This action invokes AWS Lambda from github. you can use a scheduled job or on git teiggers. 
+This action invokes AWS Lambda from github. you can use it as a scheduled job or on git triggers. 
 
 ## Inputs
 
