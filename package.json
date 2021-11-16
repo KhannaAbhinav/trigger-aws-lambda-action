@@ -9,7 +9,7 @@
     "@actions/glob": "^0.1.0",
     "@types/node-uuid": "0.0.28",
     "@types/underscore": "^1.9.4",
-    "aws-sdk": "^2.645.0",
+    "aws-sdk": "^2.814.0",
     "node-uuid": "^1.4.8",
     "simple-git": "^1.132.0",
     "underscore": "^1.9.2"
