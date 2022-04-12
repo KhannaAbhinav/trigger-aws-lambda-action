@@ -11,7 +11,7 @@
     "@types/underscore": "^1.9.4",
     "aws-sdk": "^2.645.0",
     "node-uuid": "^1.4.8",
-    "simple-git": "^1.132.0",
+    "simple-git": "^3.5.0",
     "underscore": "^1.9.2"
   },
   "devDependencies": {
